@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+from logging import root
 import os
 import time
 
@@ -18,6 +19,8 @@ from dataloader import KITTILoader3D as ls
 from dataloader import KITTILoader_dataset3d as DA
 from models import *
 
+root_path=os.path.abspath(os.path.join(os.getcwd(), "../../..")) #上三级目录
+
 parser = argparse.ArgumentParser(description='PSMNet')
 parser.add_argument('--maxdisp', type=int, default=192,
                     help='maxium disparity')
@@ -25,23 +28,25 @@ parser.add_argument('--model', default='stackhourglass',
                     help='select model')
 parser.add_argument('--datatype', default='2015',
                     help='datapath')
-parser.add_argument('--datapath', default='/media/jiaren/ImageNet/data_scene_flow_2015/training/',
-                    help='datapath')
+""" parser.add_argument('--datapath', default='/media/jiaren/ImageNet/data_scene_flow_2015/training/',
+                    help='datapath') """
+parser.add_argument('--datapath', default=root_path+'/Dataset/KITTI/object/training/',
+                    help='datapath') #新增
 parser.add_argument('--epochs', type=int, default=300,
                     help='number of epochs to train')
-parser.add_argument('--loadmodel', default='./trained/submission_model.tar',
+parser.add_argument('--loadmodel', default=root_path+'/Dataset/KITTI/trained/pretrained_sceneflow.tar',
                     help='load model')
-parser.add_argument('--savemodel', default='./',
+parser.add_argument('--savemodel', default=root_path+'/Dataset/psmnet/kitti_3d/', 
                     help='save model')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--lr_scale', type=int, default=200, metavar='S',
+parser.add_argument('--lr_scale', type=int, default=50, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--split_file', default='Kitti/object/train.txt',
+parser.add_argument('--split_file', default=root_path+'/Dataset/KITTI/object/train.txt',
                     help='save model')
-parser.add_argument('--btrain', type=int, default=4)
+parser.add_argument('--btrain', type=int, default=2)
 parser.add_argument('--start_epoch', type=int, default=1)
 
 args = parser.parse_args()
@@ -60,7 +65,7 @@ all_left_img, all_right_img, all_left_disp, = ls.dataloader(args.datapath,
 
 TrainImgLoader = torch.utils.data.DataLoader(
     DA.myImageFloder(all_left_img, all_right_img, all_left_disp, True),
-    batch_size=args.btrain, shuffle=True, num_workers=14, drop_last=False)
+    batch_size=args.btrain, shuffle=True, num_workers=2, drop_last=False)
 
 if args.model == 'stackhourglass':
     model = stackhourglass(args.maxdisp)
@@ -115,7 +120,8 @@ def train(imgL, imgR, disp_L):
     loss.backward()
     optimizer.step()
 
-    return loss.data[0]
+    # return loss.data[0]
+    return loss.item() #修改
 
 
 def test(imgL, imgR, disp_true):
@@ -160,11 +166,10 @@ def main():
     for epoch in range(args.start_epoch, args.epochs + 1):
         total_train_loss = 0
         adjust_learning_rate(optimizer, epoch)
-
+        
         ## training ##
         for batch_idx, (imgL_crop, imgR_crop, disp_crop_L) in enumerate(TrainImgLoader):
             start_time = time.time()
-
             loss = train(imgL_crop, imgR_crop, disp_crop_L)
             print('Iter %d training loss = %.3f , time = %.2f' % (batch_idx, loss, time.time() - start_time))
             total_train_loss += loss

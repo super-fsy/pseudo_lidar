@@ -21,12 +21,17 @@ from models import *
 
 # 2012 data /media/jiaren/ImageNet/data_scene_flow_2012/testing/
 
+#  个人电脑配置路径
+root_path=os.path.abspath(os.path.join(os.getcwd(), "../../..")) #上三级目录
+
 parser = argparse.ArgumentParser(description='PSMNet')
 parser.add_argument('--KITTI', default='2015',
-                    help='KITTI version')
-parser.add_argument('--datapath', default='/scratch/datasets/kitti2015/testing/',
+                    help='KITTI version') 
+# parser.add_argument('--datapath', default='/scratch/datasets/kitti2015/testing/',
+#                     help='select model')
+parser.add_argument('--datapath', default=root_path+'/Dataset/KITTI/object/training/',
                     help='select model')
-parser.add_argument('--loadmodel', default=None,
+parser.add_argument('--loadmodel', default=root_path+'/Dataset/psmnet/kitti_3d/pretrained_sceneflow_new.tar',
                     help='loading model')
 parser.add_argument('--model', default='stackhourglass',
                     help='select model')
@@ -36,7 +41,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--save_path', type=str, default='finetune_1000', metavar='S',
+parser.add_argument('--save_path', type=str, default=root_path+'/Dataset/KITTI/object/training/predict_disparity', metavar='S',
                     help='path to save the predict')
 parser.add_argument('--save_figure', action='store_true', help='if true, save the numpy file, not the png file')
 args = parser.parse_args()

@@ -2,6 +2,10 @@
 
 This repository contains the code (in PyTorch) for "[Pyramid Stereo Matching Network](https://arxiv.org/abs/1803.08669)" paper (CVPR 2018) by [Jia-Ren Chang](https://jiarenchang.github.io/) and [Yong-Sheng Chen](https://people.cs.nctu.edu.tw/~yschen/).
 
+#### changelog
+2020/12/20: Update PSMNet: now support torch 1.6.0 / torchvision 0.5.0 and python 3.7, Removed inconsistent indentation.
+
+2020/12/20: Our proposed Real-Time Stereo can be found here [Real-time Stereo](https://github.com/JiaRenChang/RealtimeStereo).
 ### Citation
 ```
 @inproceedings{chang2018pyramid,
@@ -30,9 +34,9 @@ Recent work has shown that depth estimation from a stereo pair of images can be 
 
 ### Dependencies
 
-- [Python2.7](https://www.python.org/downloads/)
-- [PyTorch(0.4.0+)](http://pytorch.org)
-- torchvision 0.2.0 (higher version may cause issues)
+- [Python 3.7](https://www.python.org/downloads/)
+- [PyTorch(1.6.0+)](http://pytorch.org)
+- torchvision 0.5.0
 - [KITTI Stereo](http://www.cvlibs.net/datasets/kitti/eval_stereo.php)
 - [Scene Flow](https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlowDatasets.en.html)
 
@@ -42,6 +46,9 @@ Download RGB cleanpass images and its disparity for three subset: FlyingThings3D
 Put them in the same folder.
 And rename the folder as: "driving_frames_cleanpass", "driving_disparity", "monkaa_frames_cleanpass", "monkaa_disparity", "frames_cleanpass", "frames_disparity".
 ```
+### Notice
+1. Warning of upsample function in PyTorch 0.4.1+: add "align_corners=True" to upsample functions.
+2. Output disparity may be better with multipling by 1.17. Reported from issues [#135](https://github.com/JiaRenChang/PSMNet/issues/135) and [#113](https://github.com/JiaRenChang/PSMNet/issues/113).
 
 ### Train
 As an example, use the following command to train a PSMNet on Scene Flow
@@ -84,10 +91,16 @@ python submission.py --maxdisp 192 \
 
 Update: 2018/9/6 We released the pre-trained KITTI 2012 model.
 
-| KITTI 2015 |  Scene Flow | KITTI 2012|
-|---|---|---|
-|[Google Drive](https://drive.google.com/file/d/1pHWjmhKMG4ffCrpcsp_MTXMJXhgl3kF9/view?usp=sharing)|[Google Drive](https://drive.google.com/file/d/1xoqkQ2NXik1TML_FMUTNZJFAHrhLdKZG/view?usp=sharing)|[Google Drive](https://drive.google.com/file/d/1p4eJ2xDzvQxaqB20A_MmSP9-KORBX1pZ/view)|
+Update: 2021/9/22 a pretrained model using torch 1.8.1 (the previous model weight are trained torch 0.4.1)
 
+| KITTI 2015 |  Scene Flow | KITTI 2012 | Scene Flow (torch 1.8.1)
+|---|---|---|---|
+|[Google Drive](https://drive.google.com/file/d/1pHWjmhKMG4ffCrpcsp_MTXMJXhgl3kF9/view?usp=sharing)|[Google Drive](https://drive.google.com/file/d/1xoqkQ2NXik1TML_FMUTNZJFAHrhLdKZG/view?usp=sharing)|[Google Drive](https://drive.google.com/file/d/1p4eJ2xDzvQxaqB20A_MmSP9-KORBX1pZ/view?usp=sharing)| [Google Drive](https://drive.google.com/file/d/1NDKrWHkwgMKtDwynXVU12emK3G5d5kkp/view?usp=sharing)
+
+### Test on your own stereo pair
+```
+python Test_img.py --loadmodel (finetuned PSMNet) --leftimg ./left.png --rightimg ./right.png
+```
 
 ## Results
 
